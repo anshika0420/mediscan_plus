@@ -1,0 +1,17 @@
+# Python / project
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDEs / OS
+.vscode/
+.idea/
+.DS_Store
+
+# Uploaded files / data
+backend/uploads/
+sample_data/*.zip
+*.zip
