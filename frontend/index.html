@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>MediScan+ Prototype</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin:auto; }
+    input, textarea, button { font-size: 1rem; padding: .5rem; margin: .3rem 0; width:100%; }
+    .row { display:flex; gap:10px; }
+    .col { flex:1; }
+    .result { background:#f6f6f6; padding:10px; border-radius:6px; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <h1>MediScan+ — Prototype UI</h1>
+  <p>Use the forms below to call backend endpoints (must run backend on <code>http://localhost:5000</code>).</p>
+
+  <h2>Symptom Triage</h2>
+  <textarea id="symptoms" placeholder="Write symptoms here..."></textarea>
+  <button onclick="sendSymptom()">Get Triage</button>
+  <div id="triageResult" class="result"></div>
+
+  <h2>Upload Scan (Image)</h2>
+  <input type="file" id="imageFile" accept="image/*" />
+  <button onclick="uploadImage()">Upload & Predict</button>
+  <div id="imgResult" class="result"></div>
+
+  <h2>Schedule Appointment</h2>
+  <input id="patientName" placeholder="Patient name" />
+  <input id="preferredDate" placeholder="Preferred date (YYYY-MM-DD)" />
+  <button onclick="book()">Book Appointment</button>
+  <div id="apptResult" class="result"></div>
+
+  <script>
+    const base = "http://localhost:5000/api";
+
+    async function sendSymptom(){
+      const text = document.getElementById('symptoms').value;
+      const res = await fetch(base + '/symptom', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({symptoms: text})
+      });
+      const j = await res.json();
+      document.getElementById('triageResult').innerText = JSON.stringify(j, null, 2);
+    }
+
+    async function uploadImage(){
+      const file = document.getElementById('imageFile').files[0];
+      if(!file){ alert('pick a file'); return; }
+      const fd = new FormData();
+      fd.append('image', file);
+      const res = await fetch(base + '/predict_image', { method:'POST', body: fd });
+      const j = await res.json();
+      document.getElementById('imgResult').innerText = JSON.stringify(j, null, 2);
+    }
+
+    async function book(){
+      const patient = { name: document.getElementById('patientName').value };
+      const preferred_date = document.getElementById('preferredDate').value;
+      const res = await fetch(base + '/appointment', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({patient, preferred_date})
+      });
+      const j = await res.json();
+      document.getElementById('apptResult').innerText = JSON.stringify(j, null, 2);
+    }
+  </script>
+</body>
+</html>

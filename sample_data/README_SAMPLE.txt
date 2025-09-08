@@ -1,0 +1,1 @@
+Place any small sample images here for quick local tests (jpg/png).
